@@ -1,60 +1,60 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "../utils/http";
+import { FaArrowLeft } from "react-icons/fa"; // for the back icon
 
-const url = import.meta.env.VITE_API_BASE_URL
+const url = import.meta.env.VITE_API_BASE_URL;
 const socket = io(url);
 
 const Chat = () => {
   const [user, setUser] = useState(null);
-  const [users, setUsers] = useState([]); // List of users
-  const [selectedUser, setSelectedUser] = useState(null); // Selected chat user
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("user"));
     if (loggedUser) {
       setUser(loggedUser);
-      socket.emit("setUser", loggedUser._id);  // Emit setUser event here to update status
+      socket.emit("setUser", loggedUser._id);
     }
 
-    // Fetch users
-    axios.get("/api/auth/users")
+    axios
+      .get("/api/auth/users")
       .then((res) => setUsers(res.data))
       .catch((error) => {
         console.error("Error fetching users:", error);
-        // You can also show a message to the user, e.g.:
         alert("Failed to load users. Please try again later.");
       });
 
-
-    // Listen for user status updates
     socket.on("updateUserStatus", (updatedUsers) => {
-      // Update the users' statuses in the UI
       setUsers((prevUsers) => {
         return prevUsers.map((u) => ({
           ...u,
-          status: updatedUsers[u._id]?.status || u.status, // Update the status if available
+          status: updatedUsers[u._id]?.status || u.status,
         }));
       });
     });
 
-
-    // Listen for messages
     socket.on("receiveMessage", (data) => {
-      console.log("Received message:", data);
       setMessages((prev) => {
-        // Prevent duplicate messages
-        if (!prev.find(msg => msg._id === data._id)) {
+        if (!prev.find((msg) => msg._id === data._id)) {
           return [...prev, data];
         }
         return prev;
       });
     });
 
+    // Check if it's a mobile device
+    setIsMobile(window.innerWidth <= 768);
+
+    window.addEventListener("resize", () => {
+      setIsMobile(window.innerWidth <= 768);
+    });
+
     return () => {
-      // Emit user disconnect event
       if (loggedUser) {
         socket.emit("userDisconnect", loggedUser._id);
       }
@@ -76,15 +76,13 @@ const Chat = () => {
     if (cachedMessages) {
       setMessages(JSON.parse(cachedMessages));
     } else {
-      axios.get(`/api/messages/${user._id}/${selectedUser._id}`)
+      axios
+        .get(`/api/messages/${user._id}/${selectedUser._id}`)
         .then((res) => setMessages(res.data))
         .catch((error) => console.error("Error fetching chat history:", error));
     }
-
   }, [selectedUser]);
 
-
-  // Send message
   const sendMessage = async () => {
     if (!message.trim() || !selectedUser) return;
 
@@ -94,8 +92,8 @@ const Chat = () => {
       const response = await axios.post("/api/messages", msgData);
 
       if (response.status === 201) {
-        socket.emit("sendMessage", msgData); // Send to the server, let it broadcast
-        setMessage(""); // Clear input
+        socket.emit("sendMessage", msgData);
+        setMessage("");
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -103,106 +101,191 @@ const Chat = () => {
     }
   };
 
-
-
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
     setSelectedUser(null);
-    // Redirect to login or home page
     window.location.href = "/";
   };
 
   return (
     <div className="flex flex-col sm:flex-row h-screen bg-gray-100">
-      {/* Sidebar with users */}
-      <div className="w-full sm:w-1/4 md:w-1/5 bg-gray-100 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Users</h2>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
+      {/* Sidebar - Mobile View */}
+      {!selectedUser && isMobile ? (
+        <div className="w-full bg-white shadow-lg p-4 space-y-4 min-h-screen">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Users</h2>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </div>
+          <div className="space-y-2">
+            {users
+              .filter((u) => u._id !== user?._id)
+              .map((u) => (
+                <button
+                  key={u._id}
+                  className={`flex items-center p-3 w-full text-left rounded-md transition-colors duration-300 ${selectedUser?._id === u._id
+                      ? "bg-blue-500 text-white"
+                      : "bg-white hover:bg-gray-100"
+                    }`}
+                  onClick={() => setSelectedUser(u)}
+                >
+                  <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold">{u?.username || u?.name}</span>
+                    <span
+                      className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"
+                        }`}
+                    >
+                      {u.status === "online" ? "Online" : "Offline"}
+                    </span>
+                  </div>
+                </button>
+              ))}
+          </div>
         </div>
-        <div className="flex flex-col space-y-2">
-          {users
-            .filter((u) => u._id !== user?._id)
-            .map((u) => (
-              <button
-                key={u._id}
-                className={`flex items-center p-3 w-full text-left rounded-lg ${selectedUser?._id === u._id ? "bg-blue-500 text-white" : "bg-white"
-                  }`}
-                onClick={() => setSelectedUser(u)}
-              >
-                <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div> {/* Placeholder avatar */}
-                <div>
-                  <span className="font-semibold">{u?.username || u?.name} </span>
-                  <span className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"}`}>
-                    {u.status === "online" ? "Online" : "Offline"}
-                  </span>
-                </div>
-              </button>
-            ))}
-        </div>
-      </div>
+      ) : null}
 
-      {/* Chat Section */}
-      <div className="w-full sm:w-3/4 md:w-4/5 flex flex-col bg-gray-200 p-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">
-            {selectedUser ? `Chat with ${selectedUser?.username || selectedUser?.name}` : "Select a user"}
-          </h2>
-          {selectedUser && (
+      {/* Chat Section - Mobile View */}
+      {selectedUser && isMobile ? (
+        <div className="w-full flex flex-col bg-gray-200 p-4 min-h-screen">
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="text-blue-500"
+            >
+              <FaArrowLeft /> Back to Contacts
+            </button>
+            <h2 className="text-xl font-semibold">
+              Chat with {selectedUser?.username || selectedUser?.name}
+            </h2>
             <div className="text-sm text-gray-600">
               {selectedUser.status === "online" ? "Online" : "Offline"}
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Chat Messages */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex-grow overflow-auto">
-          {messages
-            .filter((msg) => msg.sender === selectedUser?._id || msg.receiver === selectedUser?._id)
-            .map((msg, index) => (
+          {/* Chat Messages */}
+          <div className="flex-grow bg-white p-4 shadow-md rounded-md overflow-y-auto mb-4">
+            {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`p-2 my-2 rounded-lg ${msg.sender === user._id
-                  ? "bg-blue-500 text-white self-end"
-                  : "bg-gray-300 text-black self-start"
+                className={`max-w-xs p-3 my-2 rounded-lg text-sm ${msg.sender === user._id
+                  ? "bg-blue-500 text-white ml-auto"
+                  : "bg-gray-300 text-black mr-auto"
                   }`}
               >
-                <div>{msg.text}</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : "N/A"}
+                {msg.text}
+                <div className="text-xs text-gray-500 mt-1 text-right">
+                  {new Date(msg.createdAt).toLocaleTimeString()}
                 </div>
               </div>
             ))}
-        </div>
+          </div>
 
-        {/* Input Box */}
-        <div className="mt-4 flex">
-          <input
-            className="w-full p-3 border rounded-lg"
-            type="text"
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && sendMessage()} // Send on Enter
-          />
-          <button
-            className="bg-blue-500 text-white p-3 rounded-lg ml-2 hover:bg-blue-600"
-            onClick={sendMessage}
-          >
-            Send
-          </button>
+          {/* Message Input */}
+          <div className="flex items-center mt-4">
+            <input
+              className="w-full p-3 border rounded-lg"
+              type="text"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <button
+              className="bg-blue-500 text-white p-3 rounded-lg ml-2"
+              onClick={sendMessage}
+            >
+              Send
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {/* Desktop View - Sidebar and Chat Section */}
+      {!isMobile && (
+        <div className="w-1/3 bg-white p-4 shadow-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Users</h2>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </div>
+          <div className="space-y-2">
+            {users
+              .filter((u) => u._id !== user?._id)
+              .map((u) => (
+                <button
+                  key={u._id}
+                  className={`flex items-center p-3 w-full text-left rounded-md transition-colors duration-300 ${selectedUser?._id === u._id
+                    ? "bg-blue-500 text-white"
+                    : "bg-white hover:bg-gray-100"
+                    }`}
+                  onClick={() => setSelectedUser(u)}
+                >
+                  <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold">{u?.username || u?.name}</span>
+                    <span
+                      className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"}`}
+                    >
+                      {u.status === "online" ? "Online" : "Offline"}
+                    </span>
+                  </div>
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
+      {!isMobile && selectedUser && (
+        <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
+          <h2 className="text-xl font-semibold mb-4">Chat with {selectedUser?.username || selectedUser?.name}</h2>
+
+          {/* Chat Messages */}
+          <div className="flex-grow bg-white p-4 shadow-md rounded-md overflow-y-auto mb-4">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`max-w-xs p-3 my-2 rounded-lg text-sm ${msg.sender === user._id
+                  ? "bg-blue-500 text-white ml-auto"
+                  : "bg-gray-300 text-black mr-auto"
+                  }`}
+              >
+                {msg.text}
+                <div className="text-xs text-gray-500 mt-1 text-right">
+                  {new Date(msg.createdAt).toLocaleTimeString()}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Message Input */}
+          <div className="flex items-center mt-4">
+            <input
+              className="w-full p-3 border rounded-lg"
+              type="text"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <button
+              className="bg-blue-500 text-white p-3 rounded-lg ml-2"
+              onClick={sendMessage}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-
   );
 };
 
