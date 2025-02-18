@@ -55,8 +55,13 @@ io.on("connection", (socket) => {
   });
 
   // Handle message sending
-  socket.on("sendMessage", (data) => {
-    io.emit("receiveMessage", data);
+  socket.on("sendMessage", async (data) => {
+    try {
+      const message = await Message.create(data); // Save message to database
+      io.emit("receiveMessage", message); // Emit saved message to all clients
+    } catch (error) {
+      console.error("Error saving message:", error);
+    }
   });
 
   // Handle user disconnection
