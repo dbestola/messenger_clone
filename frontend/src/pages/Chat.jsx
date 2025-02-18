@@ -51,7 +51,7 @@ const Chat = () => {
         }
         return prev;
       });
-    });    
+    });
 
     return () => {
       // Emit user disconnect event
@@ -66,12 +66,12 @@ const Chat = () => {
   // Send message
   const sendMessage = async () => {
     if (!message.trim() || !selectedUser) return;
-  
+
     const msgData = { sender: user._id, receiver: selectedUser._id, text: message };
-  
+
     try {
       const response = await axios.post("/api/messages", msgData);
-  
+
       if (response.status === 201) {
         socket.emit("sendMessage", msgData); // Send to the server, let it broadcast
         setMessage(""); // Clear input
@@ -81,7 +81,7 @@ const Chat = () => {
       alert("Failed to send message. Please try again.");
     }
   };
-  
+
 
 
 
@@ -153,7 +153,9 @@ const Chat = () => {
                   }`}
               >
                 <div>{msg.text}</div>
-                <div className="text-xs text-gray-500 mt-1">{new Date(msg.createdAt).toLocaleTimeString()}</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : "N/A"}
+                </div>
               </div>
             ))}
         </div>
