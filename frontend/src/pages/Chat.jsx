@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import axios from "axios";
+import axios from "../utils/http";
 
-const socket = io("http://localhost:5000");
+const url = import.meta.env.VITE_API_BASE_URL
+const socket = io(url);
 
 const Chat = () => {
   const [user, setUser] = useState(null);
@@ -16,14 +17,40 @@ const Chat = () => {
     if (loggedUser) setUser(loggedUser);
 
     // Fetch users
-    axios.get("http://localhost:5000/api/auth/users").then((res) => setUsers(res.data));
+    axios.get("/api/auth/users")
+      .then((res) => setUsers(res.data))
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+        // You can also show a message to the user, e.g.:
+        alert("Failed to load users. Please try again later.");
+      });
+
+
+    // Listen for user status updates
+    socket.on("updateUserStatus", (updatedUsers) => {
+      // Update the users' statuses in the UI
+      setUsers((prevUsers) => {
+        return prevUsers.map((u) => ({
+          ...u,
+          status: updatedUsers[u._id]?.status || u.status, // Update the status if available
+        }));
+      });
+    });
+
 
     // Listen for messages
     socket.on("receiveMessage", (data) => {
       setMessages((prev) => [...prev, data]);
     });
 
-    return () => socket.off("receiveMessage"); // Cleanup
+    return () => {
+      // Emit user disconnect event
+      if (loggedUser) {
+        socket.emit("userDisconnect", loggedUser._id);
+      }
+      socket.off("updateUserStatus");
+      socket.off("receiveMessage");
+    };
   }, []);
 
   // Send message
@@ -33,14 +60,16 @@ const Chat = () => {
     const msgData = { sender: user._id, receiver: selectedUser._id, text: message };
 
     try {
-      await axios.post("http://localhost:5000/api/messages", msgData);
+      await axios.post("/api/messages", msgData);
       socket.emit("sendMessage", msgData);
 
       // Add the sent message to local state
       setMessages((prev) => [...prev, msgData]);
       setMessage("");
     } catch (error) {
-      console.error("Message sending failed", error);
+      console.error("Error sending message:", error);
+      // Show error message
+      alert("Failed to send message. Please try again.");
     }
   };
 
@@ -53,7 +82,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col sm:flex-row h-screen bg-gray-100">
       {/* Sidebar with users */}
       <div className="w-full sm:w-1/4 md:w-1/5 bg-gray-100 p-4">
         <div className="flex justify-between items-center mb-4">
@@ -69,14 +98,13 @@ const Chat = () => {
           {users.map((u) => (
             <button
               key={u._id}
-              className={`flex items-center p-3 w-full text-left rounded-lg ${
-                selectedUser?._id === u._id ? "bg-blue-500 text-white" : "bg-white"
-              }`}
+              className={`flex items-center p-3 w-full text-left rounded-lg ${selectedUser?._id === u._id ? "bg-blue-500 text-white" : "bg-white"
+                }`}
               onClick={() => setSelectedUser(u)}
             >
               <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div> {/* Placeholder avatar */}
               <div>
-                <span className="font-semibold">{u.username}</span>
+                <span className="font-semibold">{u?.username || u?.name}</span>
                 <span className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"}`}>
                   {u.status === "online" ? "Online" : "Offline"}
                 </span>
@@ -91,7 +119,7 @@ const Chat = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
-            {selectedUser ? `Chat with ${selectedUser.username}` : "Select a user"}
+            {selectedUser ? `Chat with ${selectedUser?.username || selectedUser?.name}` : "Select a user"}
           </h2>
           {selectedUser && (
             <div className="text-sm text-gray-600">
@@ -107,11 +135,10 @@ const Chat = () => {
             .map((msg, index) => (
               <div
                 key={index}
-                className={`p-2 my-2 rounded-lg ${
-                  msg.sender === user._id
-                    ? "bg-blue-500 text-white self-end"
-                    : "bg-gray-300 text-black self-start"
-                }`}
+                className={`p-2 my-2 rounded-lg ${msg.sender === user._id
+                  ? "bg-blue-500 text-white self-end"
+                  : "bg-gray-300 text-black self-start"
+                  }`}
               >
                 <div>{msg.text}</div>
                 <div className="text-xs text-gray-500 mt-1">{new Date(msg.createdAt).toLocaleTimeString()}</div>
@@ -138,6 +165,7 @@ const Chat = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

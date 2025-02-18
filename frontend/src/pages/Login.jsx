@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../utils/http";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,7 +10,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      console.log({"baseUrl": import.meta.env.VITE_API_BASE_URL});
+      
+      const { data } = await axios.post("/api/auth/login", { email, password });
       localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/chat");
     } catch (err) {

@@ -41,16 +41,41 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+// Create an object to track user statuses
+let usersOnline = {};
 
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  // Add the user to the online users list
+  socket.on("setUser", (userId) => {
+    usersOnline[userId] = { socketId: socket.id, status: "online" };
+    // Emit the updated status to all clients
+    io.emit("updateUserStatus", usersOnline);
+  });
+
+  // Handle message sending
   socket.on("sendMessage", (data) => {
     io.emit("receiveMessage", data);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+  // Handle user disconnection
+  socket.on("userDisconnect", (userId) => {
+    console.log(`${userId} disconnected`);
+
+    // Find and remove the user from the online users list
+    for (const [user, data] of Object.entries(usersOnline)) {
+      if (data.socketId === socket.id) {
+        // Mark the user as offline
+        usersOnline[user].status = "offline";
+        break;
+      }
+    }
+
+    // Emit the updated user statuses to all clients
+    io.emit("updateUserStatus", usersOnline);
   });
+
 });
 
 // Use process.env.PORT for deployment
