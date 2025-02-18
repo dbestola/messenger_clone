@@ -114,7 +114,7 @@ const Chat = () => {
       {!selectedUser && isMobile ? (
         <div className="w-full bg-white shadow-lg p-4 space-y-4 min-h-screen">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Users</h2>
+            <h2 className="text-xl font-semibold">Chats</h2>
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
@@ -129,8 +129,8 @@ const Chat = () => {
                 <button
                   key={u._id}
                   className={`flex items-center p-3 w-full text-left rounded-md transition-colors duration-300 ${selectedUser?._id === u._id
-                      ? "bg-blue-500 text-white"
-                      : "bg-white hover:bg-gray-100"
+                    ? "bg-blue-500 text-white"
+                    : "bg-white hover:bg-gray-100"
                     }`}
                   onClick={() => setSelectedUser(u)}
                 >
@@ -158,14 +158,16 @@ const Chat = () => {
               onClick={() => setSelectedUser(null)}
               className="text-blue-500"
             >
-              <FaArrowLeft /> Back to Contacts
+              <FaArrowLeft /> Back to Chats
             </button>
-            <h2 className="text-xl font-semibold">
-              Chat with {selectedUser?.username || selectedUser?.name}
+           <div>
+           <h2 className="text-xl font-semibold">
+              {selectedUser?.username || selectedUser?.name}
             </h2>
             <div className="text-sm text-gray-600">
               {selectedUser.status === "online" ? "Online" : "Offline"}
             </div>
+           </div>
           </div>
 
           {/* Chat Messages */}
@@ -173,7 +175,7 @@ const Chat = () => {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`max-w-xs p-3 my-2 rounded-lg text-sm ${msg.sender === user._id
+                className={`max-w-max p-3 my-2 rounded-lg text-sm ${msg.sender === user._id
                   ? "bg-blue-500 text-white ml-auto"
                   : "bg-gray-300 text-black mr-auto"
                   }`}
@@ -210,7 +212,7 @@ const Chat = () => {
       {!isMobile && (
         <div className="w-1/3 bg-white p-4 shadow-lg">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Users</h2>
+            <h2 className="text-xl font-semibold">Chats</h2>
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
@@ -246,7 +248,7 @@ const Chat = () => {
       )}
       {!isMobile && selectedUser && (
         <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">Chat with {selectedUser?.username || selectedUser?.name}</h2>
+          <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name}</h2>
 
           {/* Chat Messages */}
           <div className="flex-grow bg-white p-4 shadow-md rounded-md overflow-y-auto mb-4">
