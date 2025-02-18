@@ -68,10 +68,10 @@ const Chat = () => {
       localStorage.setItem(`chat_${user._id}_${selectedUser?._id}`, JSON.stringify(messages));
     }
   }, [messages]);
-  
+
   useEffect(() => {
     if (!selectedUser) return;
-  
+
     const cachedMessages = localStorage.getItem(`chat_${user._id}_${selectedUser._id}`);
     if (cachedMessages) {
       setMessages(JSON.parse(cachedMessages));
@@ -80,9 +80,9 @@ const Chat = () => {
         .then((res) => setMessages(res.data))
         .catch((error) => console.error("Error fetching chat history:", error));
     }
-  
+
   }, [selectedUser]);
-  
+
 
   // Send message
   const sendMessage = async () => {
@@ -128,22 +128,24 @@ const Chat = () => {
           </button>
         </div>
         <div className="flex flex-col space-y-2">
-          {users.map((u) => (
-            <button
-              key={u._id}
-              className={`flex items-center p-3 w-full text-left rounded-lg ${selectedUser?._id === u._id ? "bg-blue-500 text-white" : "bg-white"
-                }`}
-              onClick={() => setSelectedUser(u)}
-            >
-              <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div> {/* Placeholder avatar */}
-              <div>
-                <span className="font-semibold">{u?.username || u?.name} </span>
-                <span className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"}`}>
-                  {u.status === "online" ? "Online" : "Offline"}
-                </span>
-              </div>
-            </button>
-          ))}
+          {users
+            .filter((u) => u._id !== user?._id)
+            .map((u) => (
+              <button
+                key={u._id}
+                className={`flex items-center p-3 w-full text-left rounded-lg ${selectedUser?._id === u._id ? "bg-blue-500 text-white" : "bg-white"
+                  }`}
+                onClick={() => setSelectedUser(u)}
+              >
+                <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div> {/* Placeholder avatar */}
+                <div>
+                  <span className="font-semibold">{u?.username || u?.name} </span>
+                  <span className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"}`}>
+                    {u.status === "online" ? "Online" : "Offline"}
+                  </span>
+                </div>
+              </button>
+            ))}
         </div>
       </div>
 
