@@ -6,6 +6,7 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -29,6 +30,7 @@ const Register = () => {
     console.log("Trimmed Password:", trimmedPassword);
 
     try {
+      setLoading(true)
       await axios.post("/api/auth/register", {
         username: trimmedUsername,
         email: trimmedEmail,
@@ -39,6 +41,8 @@ const Register = () => {
       navigate("/");
     } catch (err) {
       console.error("Error Response: ", err.response ? err.response.data : err);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -69,7 +73,7 @@ const Register = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">Register</button>
+        <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">{loading ? "Loading..." : "Register"}</button>
       </form>
     </div>
   );

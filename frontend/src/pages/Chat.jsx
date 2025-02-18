@@ -63,6 +63,27 @@ const Chat = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (messages.length) {
+      localStorage.setItem(`chat_${user._id}_${selectedUser?._id}`, JSON.stringify(messages));
+    }
+  }, [messages]);
+  
+  useEffect(() => {
+    if (!selectedUser) return;
+  
+    const cachedMessages = localStorage.getItem(`chat_${user._id}_${selectedUser._id}`);
+    if (cachedMessages) {
+      setMessages(JSON.parse(cachedMessages));
+    } else {
+      axios.get(`/api/messages/${user._id}/${selectedUser._id}`)
+        .then((res) => setMessages(res.data))
+        .catch((error) => console.error("Error fetching chat history:", error));
+    }
+  
+  }, [selectedUser]);
+  
+
   // Send message
   const sendMessage = async () => {
     if (!message.trim() || !selectedUser) return;
