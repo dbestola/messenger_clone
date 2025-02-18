@@ -29,7 +29,7 @@ const Login = () => {
         <h2 className="text-2xl font-bold mb-4">Login</h2>
         <input className="w-full mb-2 p-2 border rounded" type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
         <input className="w-full mb-2 p-2 border rounded" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-        <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">{loading ? "Loading..." : "Sign in"}</button>
+        <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">{loading ? "Loading..." : "Log in"}</button>
         <p className="text-center text-sm">
           Don't have an account?{' '}
           <Link to="/register" className="text-blue-600 hover:underline">
