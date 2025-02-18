@@ -9,11 +9,16 @@ router.post("/", async (req, res) => {
     const { sender, receiver, text } = req.body;
     const newMessage = new Message({ sender, receiver, text });
     await newMessage.save();
+
+    console.log("Saved Message:", newMessage);  // Debugging
+
     res.status(201).json(newMessage);
   } catch (err) {
+    console.error("Error saving message:", err);
     res.status(500).json(err);
   }
 });
+
 
 // Get Messages
 router.get("/:userId/:receiverId", async (req, res) => {

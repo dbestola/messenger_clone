@@ -14,7 +14,10 @@ const Chat = () => {
 
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("user"));
-    if (loggedUser) setUser(loggedUser);
+    if (loggedUser) {
+      setUser(loggedUser);
+      socket.emit("setUser", loggedUser._id);  // Emit setUser event here to update status
+    }
 
     // Fetch users
     axios.get("/api/auth/users")
@@ -40,8 +43,15 @@ const Chat = () => {
 
     // Listen for messages
     socket.on("receiveMessage", (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
+      console.log("Received message:", data);
+      setMessages((prev) => {
+        // Prevent duplicate messages
+        if (!prev.find(msg => msg._id === data._id)) {
+          return [...prev, data];
+        }
+        return prev;
+      });
+    });    
 
     return () => {
       // Emit user disconnect event
@@ -56,22 +66,24 @@ const Chat = () => {
   // Send message
   const sendMessage = async () => {
     if (!message.trim() || !selectedUser) return;
-
+  
     const msgData = { sender: user._id, receiver: selectedUser._id, text: message };
-
+  
     try {
-      await axios.post("/api/messages", msgData);
-      socket.emit("sendMessage", msgData);
-
-      // Add the sent message to local state
-      setMessages((prev) => [...prev, msgData]);
-      setMessage("");
+      const response = await axios.post("/api/messages", msgData);
+  
+      if (response.status === 201) {
+        socket.emit("sendMessage", msgData); // Send to the server, let it broadcast
+        setMessage(""); // Clear input
+      }
     } catch (error) {
       console.error("Error sending message:", error);
-      // Show error message
       alert("Failed to send message. Please try again.");
     }
   };
+  
+
+
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -104,7 +116,7 @@ const Chat = () => {
             >
               <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div> {/* Placeholder avatar */}
               <div>
-                <span className="font-semibold">{u?.username || u?.name}</span>
+                <span className="font-semibold">{u?.username || u?.name} </span>
                 <span className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"}`}>
                   {u.status === "online" ? "Online" : "Offline"}
                 </span>
