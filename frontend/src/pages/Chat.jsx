@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "../utils/http";
 import { FaArrowLeft } from "react-icons/fa"; // for the back icon
+import Navbar from "./utils/Navbar";
 
 const url = import.meta.env.VITE_API_BASE_URL;
 const socket = io(url);
@@ -112,42 +113,40 @@ const Chat = () => {
     <div className="flex flex-col sm:flex-row h-screen bg-gray-100">
       {/* Sidebar - Mobile View */}
       {!selectedUser && isMobile ? (
-        <div className="w-full bg-white shadow-lg p-4 space-y-4 min-h-screen">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Chats</h2>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-            >
-              Logout
-            </button>
+        <>
+          <Navbar user={user} handleLogout={handleLogout} />
+
+          <div className="w-full bg-white shadow-lg p-4 space-y-4 min-h-screen">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Chats</h2>
+            </div>
+            <div className="space-y-2">
+              {users
+                .filter((u) => u._id !== user?._id)
+                .map((u) => (
+                  <button
+                    key={u._id}
+                    className={`flex items-center p-3 w-full text-left rounded-md transition-colors duration-300 ${selectedUser?._id === u._id
+                      ? "bg-blue-500 text-white"
+                      : "bg-white hover:bg-gray-100"
+                      }`}
+                    onClick={() => setSelectedUser(u)}
+                  >
+                    <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold">{u?.username || u?.name}</span>
+                      <span
+                        className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"
+                          }`}
+                      >
+                        {u.status === "online" ? "Online" : "Offline"}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+            </div>
           </div>
-          <div className="space-y-2">
-            {users
-              .filter((u) => u._id !== user?._id)
-              .map((u) => (
-                <button
-                  key={u._id}
-                  className={`flex items-center p-3 w-full text-left rounded-md transition-colors duration-300 ${selectedUser?._id === u._id
-                    ? "bg-blue-500 text-white"
-                    : "bg-white hover:bg-gray-100"
-                    }`}
-                  onClick={() => setSelectedUser(u)}
-                >
-                  <div className="w-8 h-8 bg-gray-400 rounded-full mr-3"></div>
-                  <div className="flex flex-col">
-                    <span className="font-semibold">{u?.username || u?.name}</span>
-                    <span
-                      className={`text-sm ${u.status === "online" ? "text-green-500" : "text-gray-500"
-                        }`}
-                    >
-                      {u.status === "online" ? "Online" : "Offline"}
-                    </span>
-                  </div>
-                </button>
-              ))}
-          </div>
-        </div>
+        </>
       ) : null}
 
       {/* Chat Section - Mobile View */}
@@ -160,14 +159,14 @@ const Chat = () => {
             >
               <FaArrowLeft /> Back to Chats
             </button>
-           <div>
-           <h2 className="text-xl font-semibold">
-              {selectedUser?.username || selectedUser?.name}
-            </h2>
-            <div className="text-sm text-gray-600">
-              {selectedUser.status === "online" ? "Online" : "Offline"}
+            <div>
+              <h2 className="text-xl font-semibold">
+                {selectedUser?.username || selectedUser?.name}
+              </h2>
+              <div className="text-sm text-gray-600">
+                {selectedUser.status === "online" ? "Online" : "Offline"}
+              </div>
             </div>
-           </div>
           </div>
 
           {/* Chat Messages */}
@@ -210,15 +209,11 @@ const Chat = () => {
 
       {/* Desktop View - Sidebar and Chat Section */}
       {!isMobile && (
+
         <div className="w-1/3 bg-white p-4 shadow-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Chats</h2>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-            >
-              Logout
-            </button>
+          <div className="mb-4 w-full">
+            {/* Navbar for Desktop */}
+            <Navbar user={user} handleLogout={handleLogout} />
           </div>
           <div className="space-y-2">
             {users
@@ -246,9 +241,13 @@ const Chat = () => {
           </div>
         </div>
       )}
+
       {!isMobile && selectedUser && (
         <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name}</h2>
+      
+          <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name} </h2>
+         
+     
 
           {/* Chat Messages */}
           <div className="flex-grow bg-white p-4 shadow-md rounded-md overflow-y-auto mb-4">
@@ -286,7 +285,9 @@ const Chat = () => {
             </button>
           </div>
         </div>
+
       )}
+
     </div>
   );
 };
