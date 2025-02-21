@@ -1,10 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: "/", // Ensure correct base URL
-  server: {
-    historyApiFallback: true, // Enable history fallback
-  }
+  base: "/",
+  build: {
+    outDir: "dist",
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        redirects: resolve(__dirname, "public/_redirects"), // Ensure `_redirects` is included
+      },
+    },
+  },
 });
