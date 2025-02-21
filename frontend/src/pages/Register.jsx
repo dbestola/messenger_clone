@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "../utils/http";
 
 const Register = () => {
@@ -74,6 +74,12 @@ const Register = () => {
         />
 
         <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">{loading ? "Loading..." : "Register"}</button>
+        <p className="text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Sign in
+          </Link>
+        </p>
       </form>
     </div>
   );
