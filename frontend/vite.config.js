@@ -4,14 +4,11 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: "/",
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, "index.html"),
-        redirects: resolve(__dirname, "public/_redirects"), // Ensure `_redirects` is included
-      },
+  server: {
+    historyApiFallback: true, // Ensure SPA fallback
+    headers: {
+      "Content-Type": "text/html",
     },
   },
 });
+
