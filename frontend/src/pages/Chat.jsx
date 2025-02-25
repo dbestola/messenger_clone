@@ -172,7 +172,8 @@ const Chat = () => {
               <FaArrowLeft /> Back to Chats
             </button>
             <div>
-              <div className="flex">
+              <div className="flex cursor-pointer"
+              onClick={() => navigate("/profile")}>
                 <FaUserCircle className="text-gray text-4xl mr-3" />
                 <h2 className="text-xl font-semibold">
                   {selectedUser?.username || selectedUser?.name}
@@ -267,7 +268,8 @@ const Chat = () => {
 
       {!isMobile && selectedUser && (
         <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
-          <div className="flex">
+          <div className="flex cursor-pointer"
+          onClick={() => navigate("/profile")}>
             <FaUserCircle className="text-gray text-4xl mr-3" />
             <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name} </h2>
           </div>
