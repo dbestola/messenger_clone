@@ -172,6 +172,7 @@ const Chat = () => {
               <FaArrowLeft /> Back to Chats
             </button>
             <div>
+
               <div className="flex cursor-pointer"
               onClick={() => navigate("/profile")}>
                 <FaUserCircle className="text-gray text-4xl mr-3" />
@@ -179,6 +180,7 @@ const Chat = () => {
                   {selectedUser?.username || selectedUser?.name}
                 </h2>
               </div>
+              
               <div className="text-sm text-gray-600">
                 {selectedUser.status === "online" ? "Online" : "Offline"}
               </div>
