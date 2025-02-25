@@ -32,7 +32,9 @@ const Profile = () => {
         fetchProfile();
     }, []);
 
-    if (loading) return <p className="text-center text-gray-500">Loading profile...</p>;
+    if (loading) return <div className="flex justify-center items-center h-24">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500"></div>
+    </div>;
     if (error) return <p className="text-center text-red-500">{error}</p>;
 
     return (
