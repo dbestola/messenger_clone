@@ -3,11 +3,13 @@ import { io } from "socket.io-client";
 import axios from "../utils/http";
 import { FaArrowLeft } from "react-icons/fa"; // for the back icon
 import Navbar from "./utils/Navbar";
+import { useNavigate } from "react-router-dom";
 
 const url = import.meta.env.VITE_API_BASE_URL;
 const socket = io(url);
 
 const Chat = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -106,7 +108,7 @@ const Chat = () => {
     localStorage.removeItem("user");
     setUser(null);
     setSelectedUser(null);
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (

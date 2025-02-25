@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chat from "./pages/Chat";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./ProtectedRoute"; // Import ProtectedRoute
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         {/* Protected Route for Chat */}
         <Route element={<ProtectedRoute />}>
           <Route path="/chat" element={<Chat />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </Router>

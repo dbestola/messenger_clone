@@ -17,6 +17,7 @@ const Login = () => {
     try {
       const { data } = await axios.post("/api/auth/login", { email, password });
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", JSON.stringify(data.token));
 
       toast.success("Login successful!", {
         position: "top-right",
