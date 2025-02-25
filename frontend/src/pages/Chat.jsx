@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "../utils/http";
-import { FaArrowLeft } from "react-icons/fa"; // for the back icon
+import { FaArrowLeft, FaUserCircle } from "react-icons/fa"; // for the back icon
 import Navbar from "./utils/Navbar";
 import SearchBar from "./utils/SearchBar";
 import { useNavigate } from "react-router-dom";
@@ -172,9 +172,12 @@ const Chat = () => {
               <FaArrowLeft /> Back to Chats
             </button>
             <div>
-              <h2 className="text-xl font-semibold">
-                {selectedUser?.username || selectedUser?.name}
-              </h2>
+              <div className="flex">
+                <FaUserCircle className="text-gray text-4xl mr-3" />
+                <h2 className="text-xl font-semibold">
+                  {selectedUser?.username || selectedUser?.name}
+                </h2>
+              </div>
               <div className="text-sm text-gray-600">
                 {selectedUser.status === "online" ? "Online" : "Offline"}
               </div>
@@ -264,8 +267,11 @@ const Chat = () => {
 
       {!isMobile && selectedUser && (
         <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
+          <div className="flex">
+            <FaUserCircle className="text-gray text-4xl mr-3" />
+            <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name} </h2>
+          </div>
 
-          <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name} </h2>
 
 
 
