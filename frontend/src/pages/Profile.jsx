@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "../utils/http";
-import { FiUser, FiMail, FiPhone, FiShield } from "react-icons/fi";
+import { FiUser, FiMail, FiPhone, FiShield, FiArrowLeft } from "react-icons/fi";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const navigate = useNavigate(); // Hook for navigation
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -35,6 +37,15 @@ const Profile = () => {
 
     return (
         <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg mt-10 text-gray-800">
+            {/* Back Button */}
+            <button
+                onClick={() => navigate(-1)}
+                className="flex items-center text-blue-500 hover:text-blue-700 mb-4"
+            >
+                <FiArrowLeft className="mr-2" />
+                Back
+            </button>
+
             <div className="flex flex-col items-center">
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-4xl">
                     <FiUser />
