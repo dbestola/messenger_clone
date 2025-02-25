@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import axios from "../utils/http";
 import { FaArrowLeft } from "react-icons/fa"; // for the back icon
 import Navbar from "./utils/Navbar";
+import SearchBar from "./utils/SearchBar";
 import { useNavigate } from "react-router-dom";
 
 const url = import.meta.env.VITE_API_BASE_URL;
@@ -12,6 +13,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -67,6 +69,11 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
+    setFilteredUsers(users);
+  }, [users]);
+
+
+  useEffect(() => {
     if (messages.length) {
       localStorage.setItem(`chat_${user._id}_${selectedUser?._id}`, JSON.stringify(messages));
     }
@@ -119,11 +126,13 @@ const Chat = () => {
           <Navbar user={user} handleLogout={handleLogout} />
 
           <div className="w-full bg-white shadow-lg p-4 space-y-4 min-h-screen">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Chats</h2>
+            <div className="flex flex-col items-start">
+              {/* Pass users & handle filtered results */}
+            <SearchBar users={users} onSearch={setFilteredUsers} />
             </div>
+
             <div className="space-y-2">
-              {users
+              {filteredUsers
                 .filter((u) => u._id !== user?._id)
                 .map((u) => (
                   <button
@@ -218,8 +227,14 @@ const Chat = () => {
             {/* Navbar for Desktop */}
             <Navbar user={user} handleLogout={handleLogout} />
           </div>
+          <div className="flex flex-col items-start">
+              {/* Pass users & handle filtered results */}
+            <SearchBar users={users} onSearch={setFilteredUsers} />
+            </div>
+
+
           <div className="space-y-2">
-            {users
+            {filteredUsers
               .filter((u) => u._id !== user?._id)
               .map((u) => (
                 <button
