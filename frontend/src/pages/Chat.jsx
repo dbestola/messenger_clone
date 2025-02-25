@@ -212,7 +212,8 @@ const Chat = () => {
       {/* Desktop View - Sidebar and Chat Section */}
       {!isMobile && (
 
-        <div className="w-1/3 bg-white p-4 shadow-lg">
+        <div className="w-1/3 bg-white p-4 shadow-lg h-screen overflow-y-auto">
+
           <div className="mb-4 w-full">
             {/* Navbar for Desktop */}
             <Navbar user={user} handleLogout={handleLogout} />
@@ -246,10 +247,10 @@ const Chat = () => {
 
       {!isMobile && selectedUser && (
         <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
-      
+
           <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name} </h2>
-         
-     
+
+
 
           {/* Chat Messages */}
           <div className="flex-grow bg-white p-4 shadow-md rounded-md overflow-y-auto mb-4">
