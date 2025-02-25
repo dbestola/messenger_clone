@@ -174,13 +174,13 @@ const Chat = () => {
             <div>
 
               <div className="flex cursor-pointer"
-              onClick={() => navigate("/profile")}>
+                onClick={() => navigate(`/profile/${selectedUser?._id}`)}>
                 <FaUserCircle className="text-gray text-4xl mr-3" />
                 <h2 className="text-xl font-semibold">
                   {selectedUser?.username || selectedUser?.name}
                 </h2>
               </div>
-              
+
               <div className="text-sm text-gray-600">
                 {selectedUser.status === "online" ? "Online" : "Offline"}
               </div>
@@ -271,7 +271,7 @@ const Chat = () => {
       {!isMobile && selectedUser && (
         <div className="flex-grow p-4 bg-gray-200 h-screen flex flex-col">
           <div className="flex cursor-pointer"
-          onClick={() => navigate("/profile")}>
+            onClick={() => navigate(`/profile/${selectedUser?._id}`)}>
             <FaUserCircle className="text-gray text-4xl mr-3" />
             <h2 className="text-xl font-semibold mb-4">{selectedUser?.username || selectedUser?.name} </h2>
           </div>

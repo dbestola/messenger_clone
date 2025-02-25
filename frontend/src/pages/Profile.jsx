@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "../utils/http";
 import { FiUser, FiMail, FiPhone, FiShield, FiArrowLeft } from "react-icons/fi";
 
 const Profile = () => {
+    const { id } = useParams(); // Get user ID from the URL
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -19,7 +20,11 @@ const Profile = () => {
                     return;
                 }
 
-                const response = await axios.get("/api/auth/profile");
+                const endpoint = id ? `/api/auth/user/${id}` : "/api/auth/profile"; // Fetch another user's profile if ID is present
+                const response = await axios.get(endpoint, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
                 console.log("Profile Response:", response.data);
                 setUser(response.data);
             } catch (err) {
@@ -30,7 +35,7 @@ const Profile = () => {
         };
 
         fetchProfile();
-    }, []);
+    }, [id]); // Refetch when ID changes
 
     if (loading) return <div className="flex justify-center items-center h-24">
         <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500"></div>

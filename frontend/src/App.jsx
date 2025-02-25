@@ -30,6 +30,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/chat" element={<Chat />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:id" element={<Profile />} /> {/* Other users' profiles */}
         </Route>
       </Routes>
     </Router>
