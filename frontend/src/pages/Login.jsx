@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "../utils/http";
 
 const Login = () => {
@@ -10,33 +12,74 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
+    setLoading(true);
 
-      setLoading(true)
+    try {
       const { data } = await axios.post("/api/auth/login", { email, password });
       localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/chat");
+
+      toast.success("Login successful!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setTimeout(() => navigate("/chat"), 2000);
     } catch (err) {
-      console.error(err);
+      toast.error("Login failed. Please check your credentials.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
-        <input className="w-full mb-2 p-2 border rounded" type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-        <input className="w-full mb-2 p-2 border rounded" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-        <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">{loading ? "Loading..." : "Log in"}</button>
-        <p className="text-center text-sm">
-          Don't have an account?{' '}
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-500 to-purple-600">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-96 text-center">
+        <h2 className="text-3xl font-bold text-gray-700 mb-6">Messenger Login</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Log in"}
+          </button>
+        </form>
+
+        <p className="text-gray-600 text-sm mt-4">
+          Don't have an account?{" "}
           <Link to="/register" className="text-blue-600 hover:underline">
             Sign up
           </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 };
