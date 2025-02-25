@@ -127,8 +127,9 @@ const Chat = () => {
 
           <div className="w-full bg-white shadow-lg p-4 space-y-4 min-h-screen">
             <div className="flex flex-col items-start">
+              <h2 className="text-xl font-semibold">Chats</h2>
               {/* Pass users & handle filtered results */}
-            <SearchBar users={users} onSearch={setFilteredUsers} />
+              <SearchBar users={users} onSearch={setFilteredUsers} />
             </div>
 
             <div className="space-y-2">
@@ -228,9 +229,10 @@ const Chat = () => {
             <Navbar user={user} handleLogout={handleLogout} />
           </div>
           <div className="flex flex-col items-start">
-              {/* Pass users & handle filtered results */}
+            <h2 className="text-xl font-semibold">Chats</h2>
+            {/* Pass users & handle filtered results */}
             <SearchBar users={users} onSearch={setFilteredUsers} />
-            </div>
+          </div>
 
 
           <div className="space-y-2">
